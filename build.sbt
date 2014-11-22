@@ -2,7 +2,7 @@ organization := "org.allenai"
 
 name := "project-starter"
 
-enablePlugins(CliPlugin)
+enablePlugins(CliPlugin, ReleasePlugin)
 
 libraryDependencies ++= Seq(
   Dependencies.allenAiCommon,

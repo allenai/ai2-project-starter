@@ -113,7 +113,7 @@ object Main extends App {
           |enablePlugins(${config.archetype.plugin})
           |""".stripMargin
 
-        val projDir = new File(".").toPath.resolve(config.name)
+        val projDir = new File(System.getProperty("user.dir")).toPath.resolve(config.name)
         Files.write(projDir.resolve("project/build.properties"), buildPropsContent.getBytes)
         Files.write(projDir.resolve("project/plugins.sbt"), pluginsContent.getBytes)
         Files.write(projDir.resolve("build.sbt"), buildContent.getBytes)
