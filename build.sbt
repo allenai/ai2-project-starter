@@ -8,8 +8,9 @@ name := "project-starter"
 enablePlugins(CliPlugin, ReleasePlugin)
 
 val releaseArtifact = ReleaseStep(action = st => {
-  assembly
-  st
+  val extracted = Project.extract(st)
+  val (newState, env) = extracted.runTask(assembly, st)
+  newState
 })
 
 libraryDependencies ++= Seq(
@@ -20,14 +21,14 @@ libraryDependencies ++= Seq(
 )
 
 ReleaseKeys.releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,              // : ReleaseStep
-  inquireVersions,                        // : ReleaseStep
-  runTest,                                // : ReleaseStep
-  setReleaseVersion,                      // : ReleaseStep
-  commitReleaseVersion,                   // : ReleaseStep, performs the initial git checks
+  checkSnapshotDependencies,
+  inquireVersions,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
   releaseArtifact,
-  tagRelease,                             // : ReleaseStep
-  setNextVersion,                         // : ReleaseStep
-  commitNextVersion,                      // : ReleaseStep
-  pushChanges                             // : ReleaseStep, also checks that an upstream branch is properly configured
+  tagRelease,
+  setNextVersion,
+  commitNextVersion,
+  pushChanges
 )
