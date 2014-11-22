@@ -20,23 +20,25 @@ import scala.util.Success
 object Main extends App {
   println("Start you some project!")
 
+  case class Archetype(id: String, plugin: String)
+
   case class Config(
-    archetype: String = "",
+    archetype: Archetype = Archetype("", ""),
     name: String = ""
   )
 
-  val archetypesToPlugin = Map(
-    "cli" -> "CliPlugin",
-    "webservice" -> "WebServicePlugin",
-    "webapp" -> "WebappPlugin",
-    "library" -> "LibraryPlugin"
+  val archetypes = Seq(
+    Archetype("cli", "CliPlugin"),
+    Archetype("webservice", "WebServicePlugin"),
+    Archetype("webapp", "WebappPlugin"),
+    Archetype("library", "LibraryPlugin")
   )
 
   val parser = new OptionParser[Config]("ai2-project-starter") {
     head("ai2-project-starter", "0.1")
     opt[String]('a', "archetype") required() valueName("<webapp|webservice|library|cli>") action { (x, c) =>
-      archetypesToPlugin.get(x) match {
-        case Some(plugin) => c.copy(archetype = plugin)
+      archetypes.find(_.id == x) match {
+        case Some(archetype) => c.copy(archetype = archetype)
         case None => throw new IllegalArgumentException("Invalid archetype")
       }
     } text("The project archetype")
@@ -84,9 +86,15 @@ object Main extends App {
 
         s"git clone --depth 1 git@github.com:allenai/ai2-project-starter.git ${tmp.toFile.getAbsolutePath}".!!
 
-        s"rm -rf ${tmp.toFile.getAbsoluteFile}".!!
+        // get the plugin template
+        val archetypeDir = tmp.resolve(s"archetypes/${config.archetype.id}")
+        val packageDir = s"src/main/scala/org/allenai/${config.name}"
+        val main = archetypeDir.resolve("Main.scala")
+        val mainContent = io.Source.fromFile(main.toFile).getLines map { line =>
+          line.replace("${name}", config.name)
+        }
 
-        s"mkdir -p ${config.name}/src/main/scala/org/allenai/${config.name}".!!
+        s"mkdir -p ${config.name}/$packageDir".!!
 
         s"mkdir -p ${config.name}/project".!!
 
@@ -102,16 +110,17 @@ object Main extends App {
           s"""
           |name := "${config.name}"
           |
-          |enablePlugins(${config.archetype})
+          |enablePlugins(${config.archetype.plugin})
           |""".stripMargin
 
         val projDir = new File(".").toPath.resolve(config.name)
         Files.write(projDir.resolve("project/build.properties"), buildPropsContent.getBytes)
         Files.write(projDir.resolve("project/plugins.sbt"), pluginsContent.getBytes)
         Files.write(projDir.resolve("build.sbt"), buildContent.getBytes)
-        // create a build.sbt
 
-        // Now let's pull down the template project
+        Files.write(projDir.resolve(s"${packageDir}/Main.scala"), mainContent.mkString("\n").getBytes)
+
+        s"rm -rf ${tmp.toFile.getAbsoluteFile}".!!
         system.shutdown()
         sys.exit(0)
     }
