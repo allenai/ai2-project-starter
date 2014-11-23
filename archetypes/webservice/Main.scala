@@ -1,5 +1,6 @@
 package org.allenai.${name}
 
+import akka.actor.ActorSystem
 import spray.routing.SimpleRoutingApp
 
 object Main extends App with SimpleRoutingApp {

@@ -103,15 +103,12 @@ object Main extends App {
           s"""addSbtPlugin("org.allenai.plugins" % "allenai-sbt-plugins" % "${pluginsVersion}")"""
 
         // TODO get the sbt version dynamically?
-        val buildPropsContent =
-          """sbt.version=0.13.7"""
+        val buildPropsContent = "sbt.version=0.13.7"
 
         val buildContent =
-          s"""
-          |name := "${config.name}"
-          |
-          |enablePlugins(${config.archetype.plugin})
-          |""".stripMargin
+          s"""|name := "${config.name}"
+              |
+              |enablePlugins(${config.archetype.plugin})""".stripMargin
 
         val projDir = new File(System.getProperty("user.dir")).toPath.resolve(config.name)
         Files.write(projDir.resolve("project/build.properties"), buildPropsContent.getBytes)

@@ -1,5 +1,6 @@
 ackage org.allenai.${name}
 
+import akka.actor.ActorSystem
 import spray.routing.SimpleRoutingApp
 import spray.http.StatusCodes
 
